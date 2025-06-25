@@ -32,3 +32,36 @@ json
 {
 "Effect":"Allow",
 "Action":"s3:GetObject",
+
+
+provider "aws" {
+region = "us-east-1"
+}
+
+resource "aws_iam_user" "sai_user" {
+  name = "sai_user"
+}
+
+resource "aws_iam_group" "sai_group" {
+  name = "sai_group"
+}
+
+resource "aws_iam_policy" "policy_for_iamuser" {
+  name = "DevS3ReadOnlyAccess"
+  description = "Read-only access to S3"
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+        Action = ["s3:Get*","s3:List*"],
+        Effect = "Allow",
+        Resource = "*"
+    }]
+  })
+}
+
+resource "aws_iam_policy_attachment" "user_policy" {
+    name = "attach-user-policy"
+    users = [aws_iam_user.sai_user]
+    policy_arn = aws_iam_policy.policy_for_iamuser.arn
+  
+}
